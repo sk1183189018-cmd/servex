@@ -1,0 +1,24 @@
+{
+  "name": "servex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SERVEX: Global Enterprise Service Management Operating System",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @servex/web dev",
+    "build": "pnpm -r build",
+    "start": "pnpm --filter @servex/web start",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js build output
+.next/
+out/
+build/
+dist/
+
+# env files (keep the example one)
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testing
+coverage/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# vercel
+.vercel/
+
+# editors and OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
