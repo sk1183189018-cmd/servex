@@ -7,3 +7,9 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+
+# Security: pin transitive packages that Next.js bundles to patched versions.
+# Remove an entry once Next itself depends on a patched release.
+overrides:
+  postcss: ">=8.5.23"
+  sharp: ">=0.35.5"
