@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PERMISSIONS, ROLE_PERMISSIONS, hasPermission } from "./permissions";
-import { ROLES, type Role } from "./roles";
+import { PERMISSIONS, ROLE_PERMISSIONS, hasPermission } from "./permissions.js";
+import { ROLES, type Role } from "./roles.js";
 
 function rolesWith(permission: (typeof PERMISSIONS)[number]): Role[] {
   return ROLES.filter((role) => hasPermission(role, permission));

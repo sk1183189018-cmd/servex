@@ -5,7 +5,7 @@ import {
   JOB_STATUS_TRANSITIONS,
   canTransition,
   isTerminalStatus,
-} from "./job-status";
+} from "./job-status.js";
 
 describe("job status model", () => {
   it("has a label for every status", () => {

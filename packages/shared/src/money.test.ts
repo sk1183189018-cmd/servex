@@ -10,7 +10,7 @@ import {
   sum,
   toDecimal,
   zero,
-} from "./money";
+} from "./money.js";
 
 describe("fromDecimal / toDecimal", () => {
   it("parses and prints two-decimal currencies", () => {

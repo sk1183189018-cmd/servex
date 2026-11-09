@@ -16,7 +16,24 @@ jobs:
   checks:
     name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Throwaway database that only exists for this job.
+          POSTGRES_USER: servex
+          POSTGRES_PASSWORD: ci_only_password
+          POSTGRES_DB: servex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U servex -d servex_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://servex:ci_only_password@localhost:5432/servex_test
     steps:
       - uses: actions/checkout@v4
 
@@ -39,7 +56,21 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
-      - name: Unit tests
+      - name: Migrations match the schema
+        run: |
+          pnpm --filter @servex/api exec drizzle-kit generate
+          if [ -n "$(git status --porcelain apps/api/drizzle)" ]; then
+            echo "Schema changed without a committed migration:"
+            git status --porcelain apps/api/drizzle
+            exit 1
+          fi
+
+      - name: Migrations apply cleanly (twice, to prove they are repeatable)
+        run: |
+          pnpm --filter @servex/api db:migrate
+          pnpm --filter @servex/api db:migrate
+
+      - name: Tests (unit, API integration, tenant isolation, RBAC)
         run: pnpm test
 
       - name: Build
