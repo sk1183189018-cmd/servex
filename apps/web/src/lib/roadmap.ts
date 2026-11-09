@@ -1,4 +1,4 @@
-export type DeliveryStatus = "In progress" | "Planned";
+export type DeliveryStatus = "Done" | "In progress" | "Planned";
 
 export interface RoadmapEntry {
   readonly phase: string;
@@ -8,8 +8,8 @@ export interface RoadmapEntry {
 
 /** Delivery status of each build phase. Keep in sync with docs/ROADMAP.md. */
 export const ROADMAP: readonly RoadmapEntry[] = [
-  { phase: "1", area: "Workspace, CI and shared domain package", status: "In progress" },
-  { phase: "2", area: "Database, auth, tenants, roles and audit log", status: "Planned" },
+  { phase: "1", area: "Workspace, CI and shared domain package", status: "Done" },
+  { phase: "2", area: "Database, auth, tenants, roles and audit log", status: "In progress" },
   { phase: "3", area: "Web app: design system, CRM, bookings, work orders", status: "Planned" },
   { phase: "4", area: "Technicians, dispatch, inventory, billing, AMC", status: "Planned" },
   { phase: "5", area: "Customer portal, quotations and payments", status: "Planned" },

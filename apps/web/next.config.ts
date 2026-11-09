@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // @servex/shared ships TypeScript source, so Next needs to compile it.
+  // @servex/shared is a compiled workspace package (dist); transpiling keeps dev HMR working.
   transpilePackages: ["@servex/shared"],
   poweredByHeader: false,
 };

@@ -12,7 +12,7 @@ into services only if a concrete scaling or team problem shows up.
 servex/
   apps/
     web/          Next.js app (exists, foundation only)
-    api/          NestJS backend            (Phase 2, not created yet)
+    api/          NestJS backend (exists: auth, tenants, RBAC, audit, customers)
     mobile/       Expo / React Native       (Phase 6, not created yet)
     desktop/      Tauri wrapper around web  (Phase 8, not created yet)
   packages/
@@ -22,17 +22,17 @@ servex/
 
 ## Stack decisions
 
-| Area     | Choice                                     | Why                                                                |
-| -------- | ------------------------------------------ | ------------------------------------------------------------------ |
-| Language | TypeScript everywhere                      | One language across web, API, mobile; shared types and rules.      |
-| Web      | Next.js 15, React 19                       | Already chosen in the repo.                                        |
-| Backend  | NestJS, REST + OpenAPI                     | Structured modules, guards and DI suit RBAC and tenancy.           |
-| Database | PostgreSQL                                 | Constraints, transactions, row-level security.                     |
-| ORM      | Prisma (to confirm in Phase 2)             | Migrations and typed client. Revisit if raw SQL needs grow.        |
-| Mobile   | Expo (React Native)                        | Cloud builds through EAS, so no local Android toolchain needed.    |
-| Desktop  | Tauri                                      | Small installers, reuses the web UI.                               |
-| Styling  | Tailwind CSS, added with the design system | Not added yet on purpose, to avoid unused dependencies in Phase 1. |
-| CI       | GitHub Actions                             | Everything builds in the cloud.                                    |
+| Area     | Choice                                     | Why                                                                   |
+| -------- | ------------------------------------------ | --------------------------------------------------------------------- |
+| Language | TypeScript everywhere                      | One language across web, API, mobile; shared types and rules.         |
+| Web      | Next.js 15, React 19                       | Already chosen in the repo.                                           |
+| Backend  | NestJS, REST + OpenAPI                     | Structured modules, guards and DI suit RBAC and tenancy.              |
+| Database | PostgreSQL                                 | Constraints, transactions, row-level security.                        |
+| ORM      | Drizzle ORM + drizzle-kit                  | Pure JS, SQL migrations in git, easy raw SQL for RLS. See decision 1. |
+| Mobile   | Expo (React Native)                        | Cloud builds through EAS, so no local Android toolchain needed.       |
+| Desktop  | Tauri                                      | Small installers, reuses the web UI.                                  |
+| Styling  | Tailwind CSS, added with the design system | Not added yet on purpose, to avoid unused dependencies in Phase 1.    |
+| CI       | GitHub Actions                             | Everything builds in the cloud.                                       |
 
 ## Rules the code must follow
 
@@ -60,9 +60,32 @@ tax compliance until a qualified professional has reviewed it.
 
 - pnpm workspace, strict TypeScript base config, Prettier, ESLint.
 - `packages/shared`: roles, default permissions, work-order statuses and transitions, decimal-safe
-  money helpers including a GST split. Covered by unit tests.
-- `apps/web`: buildable Next.js app with a status page and `/api/health`. No product features yet.
-- CI: format check, lint, typecheck, tests, build, dependency audit.
+  money helpers including a GST split. Compiled to `dist` so the API (Node ESM) and web share it.
+- `apps/api` (NestJS 12, Drizzle, PostgreSQL): sign-up, login with lockout, refresh-token rotation
+  with reuse detection, logout, role/permission guards, row-level security, append-only audit log,
+  organization settings, member role/status management, customers CRUD with search and pagination.
+  Details and endpoints: `docs/API.md`.
+- `apps/web`: buildable Next.js app with a status page and `/api/health`. No product screens yet.
+- CI: format, lint, typecheck, migration drift check, migrations twice, tests against PostgreSQL,
+  build, dependency audit.
+
+## Decisions log
+
+1. **Drizzle instead of Prisma (Phase 2).** Prisma 7 downloads its schema-engine binary from
+   `binaries.prisma.sh`, which is blocked in the cloud build sandbox, so migrations could not be run
+   and verified there. Drizzle is pure JavaScript, keeps migrations as plain SQL files in git, and
+   makes the row-level-security SQL and `SET LOCAL ROLE` pattern straightforward. Tests run against a
+   real PostgreSQL either way.
+2. **Two database paths.** Sign-up, login, refresh and platform work use the trusted owner
+   connection (`DatabaseService.root`). Everything that touches a company's own data goes through
+   `DatabaseService.tenant(orgId, fn)`, which switches to the `servex_app` role and sets
+   `app.org_id`, so row-level security applies. The org id comes from the session, never the request.
+3. **Permissions are read from the database on every request**, not from the token. Demoting or
+   disabling a user takes effect on their next call. Cost: one indexed query per request.
+4. **Deny by default.** A route with no `@Public()`, `@Authenticated()` or `@RequirePermissions()` is
+   refused by the guard.
+5. **Platform admin has no company data access.** A Super Admin session is not inside any company;
+   tenant routes answer 403.
 
 ## Open decisions
 

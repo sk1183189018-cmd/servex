@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ROLES, ROLE_LABELS, isRole } from "./roles";
+import { ROLES, ROLE_LABELS, isRole } from "./roles.js";
 
 describe("roles", () => {
   it("has the twelve roles from the product spec", () => {

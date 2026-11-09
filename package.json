@@ -12,11 +12,12 @@
     "build": "pnpm -r build",
     "start": "pnpm --filter @servex/web start",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "typecheck": "pnpm build:shared && pnpm -r typecheck",
+    "test": "pnpm build:shared && pnpm -r test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "build:shared": "pnpm --filter @servex/shared build"
   },
   "devDependencies": {
     "prettier": "^3.5.3"

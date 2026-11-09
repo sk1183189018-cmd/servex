@@ -1,4 +1,4 @@
-import type { Role } from "./roles";
+import type { Role } from "./roles.js";
 
 /**
  * Permission keys use the form `resource:action`.
